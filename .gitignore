@@ -1,0 +1,27 @@
+.env
+/data/
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+*.csv
+.trae/
+.claude/
+*.json
+*.log
+test_results/
+*.ps1
+config.py
+update/
+面试准备/
+*.tmp
+
+# 图片
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.webp
+*.bmp

@@ -1,0 +1,83 @@
+"""将 tasks 表中 updated_at > reflection_at 的记录的 updated_at 修正为 reflection_at。
+
+用法：
+    python scripts/fix_updated_at_to_reflection.py           # dry_run=True 预览变更
+    python scripts/fix_updated_at_to_reflection.py --apply   # 实际写入
+"""
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).parent.parent))
+
+import asyncio
+from datetime import datetime, timezone
+
+from sqlalchemy import update
+
+from src.core.timezone import BEIJING_TZ
+from src.db import async_session
+from src.models.tables import Task
+
+DRY_RUN = "--apply" not in sys.argv
+
+
+def _to_beijing(dt: datetime) -> str:
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return str(dt.astimezone(BEIJING_TZ))
+
+
+async def main():
+    from sqlalchemy import text
+
+    async with async_session() as db:
+        result = await db.execute(
+            text(
+                "SELECT id, updated_at, reflection_at FROM tasks "
+                "WHERE reflection_at IS NOT NULL AND updated_at > reflection_at "
+                "ORDER BY updated_at"
+            )
+        )
+        rows = [(r[0], r[1], r[2]) for r in result.all()]
+
+    print(f"共找到 {len(rows)} 条 updated_at > reflection_at 的记录")
+
+    print(f"\n模式: {'DRY RUN (预览)' if DRY_RUN else 'APPLY (实际写入)'}")
+    print()
+    print(f"{'task_id':<38} {'old_updated':<22} {'reflection_at':<22}")
+    print("-" * 100)
+
+    updates: list[tuple[str, datetime]] = []
+
+    for task_id, updated_at, reflection_at in rows:
+        updates.append((str(task_id), reflection_at))
+        print(
+            f"{str(task_id):<38} {_to_beijing(updated_at):<22} {_to_beijing(reflection_at):<22}"
+        )
+
+    print("-" * 100)
+    print(f"需变更: {len(updates)} / {len(rows)}")
+
+    if DRY_RUN:
+        print("\n[DryRun] 未实际写入。添加 --apply 参数执行写入。")
+    else:
+        if not updates:
+            print("无需变更。")
+            return
+
+        async with async_session() as db:
+            for task_id, new_updated in updates:
+                await db.execute(
+                    update(Task)
+                    .where(Task.id == task_id)
+                    .values(updated_at=new_updated)
+                )
+            await db.commit()
+
+        print(f"\n已更新 {len(updates)} 条记录。")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
