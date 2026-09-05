@@ -8,7 +8,7 @@
 
 | 仓库 | 角色 | 关系 |
 | --- | --- | --- |
-| [kbquant](https://github.com/Iamqlwy/kbquant) | 知识库后端（数据/知识层，共享大脑） | 本仓库从它的 processing_queue 拉取资讯，并把 Analysis/Trading/Feedback 写回 |
+| [kbquant](https://github.com/Iamqlwy/knowledge-base-quant) | 知识库后端（数据/知识层，共享大脑） | 本仓库从它的 processing_queue 拉取资讯，并把 Analysis/Trading/Feedback 写回 |
 | workflow（本仓库） | 多 Agent 分析流水线 | 重要性分级 → 深度分析 → 风控 → 复盘 |
 | [Trade-system](https://github.com/Iamqlwy/Trade-system) | A 股交易平台（应用/交易层） | 读取 kbquant 沉淀的知识做可视化与交易 |
 
@@ -33,7 +33,7 @@
 
 > **数据流**：资讯流入 → kbquant 入库 → 本仓库分析 → 知识沉淀回 kbquant → Trade-system 可视化/交易。
 >
-> **启动顺序**：先启动 [kbquant](https://github.com/Iamqlwy/kbquant)（数据层就绪后本仓库才能消费队列），再启动本仓库，最后启动 [Trade-system](https://github.com/Iamqlwy/Trade-system)。
+> **启动顺序**：先启动 [kbquant](https://github.com/Iamqlwy/knowledge-base-quant)（数据层就绪后本仓库才能消费队列），再启动本仓库，最后启动 [Trade-system](https://github.com/Iamqlwy/Trade-system)。
 
 ## 概述
 
@@ -211,7 +211,7 @@ CRAWLED → INGESTED → SIGNIFICANCE_CHECKING ──→ DEEP_ANALYZING → DEEP
 
 详见 `docs/API.md`。
 
-> 该 KB 即 [kbquant](https://github.com/Iamqlwy/kbquant) 仓库（闭环的数据/知识层），不是本仓库内建组件；其沉淀的知识进一步被 [Trade-system](https://github.com/Iamqlwy/Trade-system) 读取用于可视化与交易。
+> 该 KB 即 [kbquant](https://github.com/Iamqlwy/knowledge-base-quant) 仓库（闭环的数据/知识层），不是本仓库内建组件；其沉淀的知识进一步被 [Trade-system](https://github.com/Iamqlwy/Trade-system) 读取用于可视化与交易。
 
 ### 5. 行情数据 (MarketDataProvider)
 
@@ -285,7 +285,7 @@ CRAWLED → INGESTED → SIGNIFICANCE_CHECKING ──→ DEEP_ANALYZING → DEEP
 
 ### 前置条件
 
-1. **KB API 服务**：先启动 [kbquant](https://github.com/Iamqlwy/kbquant) 后端（默认 `http://localhost:8000`，即 `KB_API_BASE_URL`）。kbquant 是本系统的数据源头：本仓库通过 `kbquant.client.QuantClient` 消费其队列并把分析结果写回。
+1. **KB API 服务**：先启动 [kbquant](https://github.com/Iamqlwy/knowledge-base-quant) 后端（默认 `http://localhost:8000`，即 `KB_API_BASE_URL`）。kbquant 是本系统的数据源头：本仓库通过 `kbquant.client.QuantClient` 消费其队列并把分析结果写回。
 2. **行情数据**：本地 `C:/klines/` 目录下有 CSV 格式的 K 线数据（或安装 xtquant 用于实盘）
 3. **LLM API Key**：DeepSeek 或 Qwen 的 API Key
 
@@ -326,7 +326,7 @@ pytest tests/ -v
 
 ## 相关仓库
 
-- [kbquant](https://github.com/Iamqlwy/kbquant) — 知识库后端（本仓库的上游数据源与下游落库处）
+- [kbquant](https://github.com/Iamqlwy/knowledge-base-quant) — 知识库后端（本仓库的上游数据源与下游落库处）
 - [Trade-system](https://github.com/Iamqlwy/Trade-system) — A 股交易平台（知识落库后的展示/交易层）
 
 ## 关键依赖
